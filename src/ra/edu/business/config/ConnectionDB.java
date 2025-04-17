@@ -10,36 +10,40 @@ public class ConnectionDB {
     private static final String USER = "root1";
     private static final String PASSWORD = "a@1234";
 
-    public static Connection openConnection() {
-        Connection conn = null;
-        try {
-            // Đăng ký driver thủ công (dự phòng)
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+    public static void testConnection() {
+        try (Connection conn = openConnection()) {
+            if (conn != null) {
+                System.out.println("Kết nối cơ sở dữ liệu thành công!");
+            } else {
+                System.out.println("Kết nối thất bại!");
+            }
         } catch (SQLException e) {
-            System.out.println("\u001B[31m" + "Lỗi kết nối CSDL do: " + e.getMessage() + "\u001B[0m");
-        } catch (ClassNotFoundException e) {
-            System.out.println("\u001B[31m" + "Không tìm thấy driver MySQL: " + e.getMessage() + "\u001B[0m");
-        } catch (Exception e) {
-            System.out.println("\u001B[31m" + "Lỗi không xác định khi kết nối CSDL: " + e.getMessage() + "\u001B[0m");
+            System.out.println("Lỗi kết nối: " + e.getMessage());
         }
-        return conn;
     }
 
-    public static void closeConnection(Connection conn, CallableStatement callst) {
+    public static Connection openConnection() throws SQLException {
+        try {
+            return DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (SQLException e) {
+            System.out.println("\u001B[31m" + "Lỗi kết nối CSDL do: " + e.getMessage() + "\u001B[0m");
+            throw e; // Ném lại ngoại lệ để tầng gọi xử lý
+        }
+    }
+
+    public static void closeConnection(Connection conn, CallableStatement callSt) {
+        if (callSt != null) {
+            try {
+                callSt.close();
+            } catch (SQLException e) {
+                System.out.println("\u001B[31m" + "Lỗi đóng CallableStatement: " + e.getMessage() + "\u001B[0m");
+            }
+        }
         if (conn != null) {
             try {
                 conn.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        if (callst != null) {
-            try {
-                callst.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+                System.out.println("\u001B[31m" + "Lỗi đóng kết nối: " + e.getMessage() + "\u001B[0m");
             }
         }
     }

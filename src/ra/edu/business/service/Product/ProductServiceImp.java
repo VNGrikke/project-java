@@ -22,7 +22,7 @@ public class ProductServiceImp implements ProductService {
         try {
             Validator.validateNotEmpty(name, "Tên điện thoại");
             Validator.validatePositiveNumber(price, "Giá điện thoại");
-            Validator.promptForNotEmpty(brand, "Hãng điên thoại");
+            Validator.validateNotEmpty(brand, "Hãng điên thoại");
             Validator.validatePositiveNumber(stock, "Số lượng");
             productDAO.addPhone(name, price, brand ,stock);
         } catch (ValidationException e) {
