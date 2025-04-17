@@ -1,4 +1,4 @@
 package ra.edu.presentation;
 
-public class demo {
+public class invoiceUI {
 }

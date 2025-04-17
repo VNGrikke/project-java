@@ -1,4 +1,4 @@
 package ra.edu.business.service;
 
-public class demo {
+public interface AppService {
 }
