@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionDB {
-    private static final String URL = "jdbc:mysql://localhost:3306/manager_phone_store?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/manager_phone_store";
     private static final String USER = "root1";
     private static final String PASSWORD = "a@1234";
 

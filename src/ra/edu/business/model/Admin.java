@@ -8,6 +8,9 @@ public class Admin {
     public int getAccountId() {
         return accountId;
     }
+    public void setAccountId(int accountId) {
+        this.accountId = accountId;
+    }
 
     public String getAccountName() {
         return accountName;
@@ -28,7 +31,6 @@ public class Admin {
     public Admin() {}
 
     public Admin(int accountId, String accountName, String password) {
-        this.accountId = accountId;
         this.accountName = accountName;
         this.password = password;
     }

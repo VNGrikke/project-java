@@ -2,6 +2,7 @@ package ra.edu.business.service.Admin;
 
 import ra.edu.business.dao.Admin.AdminDAO;
 import ra.edu.business.dao.Admin.AdminDaoImp;
+import ra.edu.business.model.Admin;
 
 public class AdminServiceImp implements AdminService {
     private AdminDAO adminDAO;
@@ -14,14 +15,15 @@ public class AdminServiceImp implements AdminService {
 
     @Override
     public boolean login(String username, String password) {
-        boolean authenticated = adminDAO.authenticate(username, password);
-        if (authenticated) {
+        Admin authenticated = adminDAO.authenticate(username, password);
+        if (authenticated != null) {
             isLoggedIn = true;
             System.out.println("Đăng nhập thành công!");
+            return true;
         } else {
-            System.out.println("Lỗi: Username hoặc password không đúng!");
+            System.out.println("\u001B[31m" + "Lỗi: Username hoặc password không đúng!" + "\u001B[0m");
+            return false;
         }
-        return authenticated;
     }
 
     @Override

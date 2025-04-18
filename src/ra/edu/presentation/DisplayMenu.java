@@ -1,6 +1,5 @@
 package ra.edu.presentation;
 
-
 import ra.edu.business.service.Admin.AdminService;
 import ra.edu.business.service.Admin.AdminServiceImp;
 import ra.edu.business.service.Product.ProductService;
@@ -10,14 +9,14 @@ import ra.edu.validate.Validator;
 import java.io.Console;
 
 public class DisplayMenu {
-    private static AdminService adminService;
-    private static ProductService productService;
-    private final ProductMenu productMenu;
+    private AdminService adminService;
+    private ProductService productService;
+    private ProductMenu productMenu;
 
     public DisplayMenu() {
         this.adminService = new AdminServiceImp();
         this.productService = new ProductServiceImp();
-        this.productMenu = new ProductMenu(productService);
+        this.productMenu = new ProductMenu(productService, this);
     }
 
     public void displayMenu() {
@@ -25,13 +24,11 @@ public class DisplayMenu {
             System.out.println("\n=== MENU HỆ THỐNG QUẢN LÝ CỬA HÀNG ĐIỆN THOẠI ===");
             System.out.println("1. Đăng nhập");
             System.out.println("0. Thoát");
-            System.out.print("Chọn chức năng: ");
 
             int choice = getChoice();
             switch (choice) {
                 case 1:
-                    login();
-                    if (adminService.isLoggedIn()) {
+                    if (login()) {
                         menuManager();
                     }
                     break;
@@ -45,7 +42,7 @@ public class DisplayMenu {
         }
     }
 
-    public void menuManager(){
+    public void menuManager() {
         while (true) {
             System.out.println("\n=== DANH SÁCH QUẢN LÝ ===");
             System.out.println("1. Quản lý điện thoại");
@@ -53,30 +50,30 @@ public class DisplayMenu {
             System.out.println("3. Quản lý đơn hàng");
             System.out.println("4. Thống kê doanh thu");
             System.out.println("0. Đăng xuất");
-            System.out.print("Chọn chức năng : ");
+
             int choice = getChoice();
             switch (choice) {
                 case 1:
                     productMenu.displayMenu();
                     break;
                 case 2:
+                    System.out.println("Chức năng chưa được triển khai!");
                     break;
                 case 3:
+                    System.out.println("Chức năng chưa được triển khai!");
                     break;
                 case 4:
+                    System.out.println("Chức năng chưa được triển khai!");
                     break;
                 case 0:
                     adminService.logout();
                     return;
                 default:
-                    System.out.print("Sai cú pháp! \nNhập lại: ");
-                    break;
+                    System.out.println("Lựa chọn không hợp lệ!");
             }
         }
     }
 
-
-    // Hàm hỗ trợ: Lấy lựa chọn từ người dùng
     private int getChoice() {
         try {
             return Integer.parseInt(Validator.promptForNotEmpty("Nhập lựa chọn: ", "Lựa chọn"));
@@ -87,12 +84,11 @@ public class DisplayMenu {
         }
     }
 
-    // Hàm hỗ trợ: Đăng nhập
-    private void login() {
+    private boolean login() {
         Console console = System.console();
         if (console == null) {
             System.out.println("Không thể sử dụng Console. Vui lòng chạy trong terminal.");
-            return;
+            return false;
         }
 
         System.out.print("Username: ");
@@ -102,6 +98,6 @@ public class DisplayMenu {
         char[] passwordArray = console.readPassword();
         String password = new String(passwordArray);
 
-        adminService.login(username, password);
+        return adminService.login(username, password);
     }
 }
