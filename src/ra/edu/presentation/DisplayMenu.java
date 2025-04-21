@@ -2,8 +2,11 @@ package ra.edu.presentation;
 
 import ra.edu.business.service.Admin.AdminService;
 import ra.edu.business.service.Admin.AdminServiceImp;
+import ra.edu.business.service.Customer.CustomerService;
+import ra.edu.business.service.Customer.CustomerServiceImp;
 import ra.edu.business.service.Product.ProductService;
 import ra.edu.business.service.Product.ProductServiceImp;
+
 import ra.edu.validate.Validator;
 
 import java.io.Console;
@@ -11,12 +14,16 @@ import java.io.Console;
 public class DisplayMenu {
     private AdminService adminService;
     private ProductService productService;
+    private CustomerService customerService;
     private ProductMenu productMenu;
+    private CustomerMenu customerMenu;
 
     public DisplayMenu() {
         this.adminService = new AdminServiceImp();
         this.productService = new ProductServiceImp();
+        this.customerService = new CustomerServiceImp();
         this.productMenu = new ProductMenu(productService, this);
+        this.customerMenu = new CustomerMenu(customerService, this);
     }
 
     public void displayMenu() {
@@ -57,7 +64,7 @@ public class DisplayMenu {
                     productMenu.displayMenu();
                     break;
                 case 2:
-                    System.out.println("Chức năng chưa được triển khai!");
+                    customerMenu.displayMenu();
                     break;
                 case 3:
                     System.out.println("Chức năng chưa được triển khai!");
