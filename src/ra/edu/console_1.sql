@@ -15,31 +15,36 @@ create table products(
      productid int auto_increment primary key,
      name varchar(100) not null ,
      brand varchar(50) ,
-     price decimal(10,2) not null ,
+     price decimal(12,2) not null ,
      stock int default 0,
      status boolean default true
 );
 ;
 insert into products(name, brand, price, stock)
-values ('Iphone 14', 'Apple', 30000000, 15 ),
-       ('Iphone 15', 'Apple', 20000000, 15),
-       ('SamSung s24 ultra', 'SamSung', 32000000, 15),
-       ('Redmi note 14 pro 5G', 'Xiaomi', 8700000, 15);
+values ('Iphone 14', 'Apple', 3000, 15 ),
+       ('Iphone 15', 'Apple', 2000, 15),
+       ('SamSung s24 ultra', 'SamSung', 3200, 15),
+       ('Redmi note 14 pro 5G', 'Xiaomi', 8700, 15);
 
 create table customers(
-      customer_id int auto_increment primary key ,
-      name varchar(100) not null ,
-      phone varchar(20) ,
-      email varchar(100) ,
-      address varchar(255)
+    customer_id int auto_increment primary key ,
+    name varchar(100) not null ,
+    phone varchar(20),
+    email varchar(100) unique ,
+    address varchar(255),
+    status boolean default(true)
 );
+
+INSERT INTO customers (name, phone, email, address )
+VALUES ('Vuong', '0123456789' ,'Vuong@gmail.com', 'Ha Noi'),
+       ('Vu', '0987651234', 'Vu@gmail.com', 'Hai Duong');
 
 create table invoices(
     invoice_id int auto_increment primary key ,
     customer_id int,
     foreign key (customer_id) references customers(customer_id),
-    invoice_date date,
-    total decimal(10,2)
+    invoice_date datetime default(current_timestamp),
+    total decimal(12,2)
 );
 
 create table invoice_items(
@@ -47,7 +52,7 @@ create table invoice_items(
     invoice_id int,
     productid int,
     quantity int not null ,
-    unit_price decimal(10,2) not null ,
+    unit_price decimal(12,2) not null ,
     foreign key (invoice_id) references invoices(invoice_id),
     foreign key (productid) references products(productid)
 );
@@ -85,7 +90,7 @@ END //
 -- Thêm điện thoại
 CREATE PROCEDURE add_phone(
     IN p_name VARCHAR(100),
-    IN p_price DOUBLE,
+    IN p_price DECIMAL(12,2),
     IN p_brand VARCHAR(50),
     IN p_stock INT
 )
@@ -98,7 +103,7 @@ END //
 CREATE PROCEDURE update_phone(
     IN p_product_id INT,
     IN p_name VARCHAR(100),
-    IN p_price DOUBLE,
+    IN p_price DECIMAL(12,2),
     IN p_brand VARCHAR(50),
     IN p_stock INT
 )
@@ -128,8 +133,8 @@ END //
 
 -- Tìm kiếm theo khoảng giá
 CREATE PROCEDURE find_phone_by_price_range(
-    IN p_min_price DOUBLE,
-    IN p_max_price DOUBLE
+    IN p_min_price DECIMAL(12,2),
+    IN p_max_price DECIMAL(12,2)
 )
 BEGIN
     SELECT productid, name, price, brand, stock, status
@@ -155,7 +160,8 @@ DELIMITER //
 -- Lấy danh sách khách hàng
 CREATE PROCEDURE get_customer_list()
 BEGIN
-    SELECT customer_id, name, email, phone, address FROM Customers;
+    SELECT customer_id, name, email, phone, address FROM Customers
+    WHERE status = TRUE;
 END //
 
 -- Thêm khách hàng
@@ -189,7 +195,64 @@ CREATE PROCEDURE delete_customer(
     IN p_customer_id INT
 )
 BEGIN
-    DELETE FROM Customers WHERE customer_id = p_customer_id;
+    UPDATE Customers
+    SET status = FALSE
+    WHERE customer_id = p_customer_id;
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
+-- Lấy danh sách hóa đơn
+CREATE PROCEDURE get_invoices()
+BEGIN
+    SELECT i.invoice_id, i.customer_id, i.invoice_date, i.total
+    FROM Invoices i;
+END //
+
+-- Stored Procedure: Thêm hóa đơn
+CREATE PROCEDURE add_invoice(
+    IN p_customer_id INT,
+    IN p_total_amount DECIMAL(12,2)
+)
+BEGIN
+    INSERT INTO Invoices (customer_id, total)
+    VALUES (p_customer_id , p_total_amount);
+END //
+
+-- Stored Procedure: Thêm chi tiết hóa đơn
+CREATE PROCEDURE add_invoice_item(
+    IN p_invoice_id INT,
+    IN p_product_id INT,
+    IN p_quantity INT,
+    IN p_unit_price DECIMAL(12,2)
+)
+BEGIN
+    INSERT INTO invoice_items (invoice_id, productid, quantity, unit_price)
+    VALUES (p_invoice_id, p_product_id, p_quantity, p_unit_price);
+END //
+
+-- Stored Procedure: Tìm kiếm hóa đơn theo tên khách hàng
+CREATE PROCEDURE search_invoices_by_customer_name(
+    IN p_customer_name VARCHAR(100)
+)
+BEGIN
+    SELECT i.invoice_id, i.customer_id, c.name AS customer_name, i.invoice_date, i.total
+    FROM Invoices i
+             JOIN Customers c ON i.customer_id = c.customer_id
+    WHERE c.name LIKE CONCAT('%', p_customer_name, '%');
+END //
+
+-- Stored Procedure: Tìm kiếm hóa đơn theo ngày
+CREATE PROCEDURE search_invoices_by_date(
+    IN p_date DATE
+)
+BEGIN
+    SELECT i.invoice_id, i.customer_id, c.name AS customer_name, i.invoice_date, i.total
+    FROM Invoices i
+             JOIN Customers c ON i.customer_id = c.customer_id
+    WHERE DATE(i.invoice_date) = p_date ;
 END //
 
 DELIMITER ;

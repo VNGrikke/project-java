@@ -12,4 +12,6 @@ public interface ProductDAO {
     List<Product> findPhoneByBrand(String brand);
     List<Product> findPhoneByPriceRange(double minPrice, double maxPrice);
     List<Product> findPhoneByStock(int minStock, int maxStock);
+    boolean existsById(int productId);
+    double getPriceById(int productId);
 }

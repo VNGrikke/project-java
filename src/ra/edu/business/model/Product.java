@@ -1,11 +1,11 @@
 package ra.edu.business.model;
 
 public class Product {
-    int productid;
-    String name;
-    double price;
-    int stock;
-    String brand;
+    private int productid;
+    private String name;
+    private double price;
+    private int stock;
+    private String brand;
     boolean status;
 
     public int getProductid() {

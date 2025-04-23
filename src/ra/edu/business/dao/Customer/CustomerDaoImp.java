@@ -107,4 +107,26 @@ public class CustomerDaoImp implements CustomerDAO {
             ConnectionDB.closeConnection(conn, callSt);
         }
     }
+
+    @Override
+    public boolean existsById(int customerId) {
+        Connection conn = null;
+        CallableStatement callSt = null;
+        try {
+            conn = ConnectionDB.openConnection();
+            if (conn == null) return false;
+
+            callSt = conn.prepareCall("SELECT COUNT(*) FROM Customers WHERE customer_id = ?");
+            callSt.setInt(1, customerId);
+            ResultSet rs = callSt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println("\u001B[31m" + "Lỗi kiểm tra khách hàng: " + e.getMessage() + "\u001B[0m");
+        } finally {
+            ConnectionDB.closeConnection(conn, callSt);
+        }
+        return false;
+    }
 }

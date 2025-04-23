@@ -1,11 +1,11 @@
 package ra.edu.business.model;
 
 public class Customer {
-    int customerId;
-    String customerName;
-    String customerEmail;
-    String customerPhone;
-    String customerAddress;
+    private int customerId;
+    private String customerName;
+    private String customerEmail;
+    private String customerPhone;
+    private String customerAddress;
 
     public int getCustomerId() {
         return customerId;

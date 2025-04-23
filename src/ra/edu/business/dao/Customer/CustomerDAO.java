@@ -9,4 +9,5 @@ public interface CustomerDAO {
     void addCustomer(String name, String email, String phone, String address);
     void updateCustomer(int customerId, String name, String email, String phone, String address);
     void deleteCustomer(int customerId);
+    boolean existsById(int customerId);
 }

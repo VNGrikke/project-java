@@ -1,9 +1,9 @@
 package ra.edu.business.model;
 
 public class Admin {
-    int accountId;
-    String accountName;
-    String password;
+    private int accountId;
+    private String accountName;
+    private String password;
 
     public int getAccountId() {
         return accountId;

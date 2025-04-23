@@ -9,6 +9,7 @@ import java.util.List;
 
 public class ProductDaoImp implements ProductDAO {
     public static List<Product> products = new ArrayList<>();
+
     @Override
     public void getAllPhoneList() {
         Connection conn = null;
@@ -49,9 +50,6 @@ public class ProductDaoImp implements ProductDAO {
 
     @Override
     public void addPhone(String name, double price, String brand, int stock) {
-
-
-
         Connection conn = null;
         CallableStatement callSt = null;
         try {
@@ -60,7 +58,6 @@ public class ProductDaoImp implements ProductDAO {
                 System.out.println("\u001B[31m" + "Không thể thiết lập kết nối đến cơ sở dữ liệu" + "\u001B[0m");
                 return;
             }
-
 
             callSt = conn.prepareCall("{call add_phone(?, ?, ?, ?)}");
             callSt.setString(1, name);
@@ -101,14 +98,11 @@ public class ProductDaoImp implements ProductDAO {
             } else {
                 System.out.println("Không tìm thấy điện thoại với ID: " + productId);
             }
-
         } catch (SQLException e) {
             System.out.println("\u001B[31m" + "Lỗi cập nhật điện thoại: " + e.getMessage() + "\u001B[0m");
         } finally {
             ConnectionDB.closeConnection(conn, callSt);
         }
-
-
     }
 
     @Override
@@ -236,6 +230,50 @@ public class ProductDaoImp implements ProductDAO {
             ConnectionDB.closeConnection(conn, callSt);
         }
         return products;
+    }
+
+    @Override
+    public boolean existsById(int productId) {
+        Connection conn = null;
+        CallableStatement callSt = null;
+        try {
+            conn = ConnectionDB.openConnection();
+            if (conn == null) return false;
+
+            callSt = conn.prepareCall("SELECT COUNT(*) FROM Products WHERE productid = ?");
+            callSt.setInt(1, productId);
+            ResultSet rs = callSt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println("\u001B[31m" + "Lỗi kiểm tra sản phẩm: " + e.getMessage() + "\u001B[0m");
+        } finally {
+            ConnectionDB.closeConnection(conn, callSt);
+        }
+        return false;
+    }
+
+    @Override
+    public double getPriceById(int productId) {
+        Connection conn = null;
+        CallableStatement callSt = null;
+        try {
+            conn = ConnectionDB.openConnection();
+            if (conn == null) return 0.0;
+
+            callSt = conn.prepareCall("SELECT price FROM Products WHERE productid = ?");
+            callSt.setInt(1, productId);
+            ResultSet rs = callSt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("price");
+            }
+        } catch (SQLException e) {
+            System.out.println("\u001B[31m" + "Lỗi lấy giá sản phẩm: " + e.getMessage() + "\u001B[0m");
+        } finally {
+            ConnectionDB.closeConnection(conn, callSt);
+        }
+        return 0.0; // Trả về 0 nếu không tìm thấy
     }
 
     public static void displayProductList(List<Product> products) {

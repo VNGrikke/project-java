@@ -32,8 +32,4 @@ public class AdminServiceImp implements AdminService {
         System.out.println("Đăng xuất thành công!");
     }
 
-    @Override
-    public boolean isLoggedIn() {
-        return isLoggedIn;
-    }
 }

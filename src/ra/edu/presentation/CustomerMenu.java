@@ -75,15 +75,18 @@ public class CustomerMenu {
 
     private void addCustomer() {
         System.out.println("Thêm mới khách hàng:");
+        List<Customer> customers = customerService.getCustomerList();
 
         // Nhập và validate tên
         String name = promptAndValidate("Nhập tên khách hàng: ", "Tên khách hàng", CustomerValidator::validateName);
 
-        // Nhập và validate email
-        String email = promptAndValidate("Nhập email: ", "Email", CustomerValidator::validateEmail);
+        // Nhập và validate email, kiểm tra trùng lặp
+        String email = promptAndValidateUnique("Nhập email: ", "Email", CustomerValidator::validateEmail, customers,
+                (c, input) -> c.getCustomerEmail().equals(input), -1);
 
-        // Nhập và validate số điện thoại
-        String phone = promptAndValidate("Nhập số điện thoại: ", "Số điện thoại", CustomerValidator::validatePhone);
+        // Nhập và validate số điện thoại, kiểm tra trùng lặp
+        String phone = promptAndValidateUnique("Nhập số điện thoại: ", "Số điện thoại", CustomerValidator::validatePhone, customers,
+                (c, input) -> c.getCustomerPhone().equals(input), -1);
 
         // Nhập và validate địa chỉ
         String address = promptAndValidate("Nhập địa chỉ: ", "Địa chỉ", CustomerValidator::validateAddress);
@@ -94,16 +97,30 @@ public class CustomerMenu {
 
     private void updateCustomer() {
         System.out.println("Cập nhật khách hàng:");
+        List<Customer> customers = customerService.getCustomerList();
+        if (customers.isEmpty()) {
+            System.out.println("Danh sách khách hàng trống! Không thể cập nhật.");
+            return;
+        }
+
+        // Nhập và kiểm tra ID hợp lệ
         int id = (int) Validator.promptForPositiveNumber("Nhập ID khách hàng: ", "ID khách hàng");
+        boolean customerExists = customers.stream().anyMatch(c -> c.getCustomerId() == id);
+        if (!customerExists) {
+            System.out.println("Không tìm thấy khách hàng với ID: " + id);
+            return;
+        }
 
         // Nhập và validate tên
         String name = promptAndValidate("Nhập tên mới: ", "Tên khách hàng", CustomerValidator::validateName);
 
-        // Nhập và validate email
-        String email = promptAndValidate("Nhập email mới: ", "Email", CustomerValidator::validateEmail);
+        // Nhập và validate email, kiểm tra trùng lặp (trừ chính khách hàng đang cập nhật)
+        String email = promptAndValidateUnique("Nhập email mới: ", "Email", CustomerValidator::validateEmail, customers,
+                (c, input) -> c.getCustomerEmail().equals(input), id);
 
-        // Nhập và validate số điện thoại
-        String phone = promptAndValidate("Nhập số điện thoại mới: ", "Số điện thoại", CustomerValidator::validatePhone);
+        // Nhập và validate số điện thoại, kiểm tra trùng lặp (trừ chính khách hàng đang cập nhật)
+        String phone = promptAndValidateUnique("Nhập số điện thoại mới: ", "Số điện thoại", CustomerValidator::validatePhone, customers,
+                (c, input) -> c.getCustomerPhone().equals(input), id);
 
         // Nhập và validate địa chỉ
         String address = promptAndValidate("Nhập địa chỉ mới: ", "Địa chỉ", CustomerValidator::validateAddress);
@@ -131,9 +148,30 @@ public class CustomerMenu {
         }
     }
 
+    // Phương thức hỗ trợ để nhập và validate, đồng thời kiểm tra trùng lặp
+    private String promptAndValidateUnique(String prompt, String fieldName, ValidatorFunction validator,
+                                           List<Customer> customers, UniqueChecker checker, int excludeId) {
+        while (true) {
+            String input = promptAndValidate(prompt, fieldName, validator);
+            boolean isDuplicate = customers.stream()
+                    .anyMatch(c -> checker.check(c, input) && c.getCustomerId() != excludeId);
+            if (isDuplicate) {
+                System.out.println("\u001B[31m" + "Lỗi: " + fieldName + " đã được sử dụng! Vui lòng nhập lại." + "\u001B[0m");
+            } else {
+                return input;
+            }
+        }
+    }
+
     // Interface chức năng để truyền các phương thức validate
     @FunctionalInterface
     private interface ValidatorFunction {
         void validate(String input) throws ValidationException;
+    }
+
+    // Interface chức năng để kiểm tra trùng lặp
+    @FunctionalInterface
+    private interface UniqueChecker {
+        boolean check(Customer customer, String input);
     }
 }
